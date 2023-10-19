@@ -1,0 +1,71 @@
+###############################################################################
+#
+# Licensed to the Apache Software Foundation (ASF) under one 
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
+# KIND, either express or implied.  See the License for the 
+# specific language governing permissions and limitations
+# under the License.
+#
+###############################################################################
+
+services:
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    mem_limit: 512m
+    memswap_limit: 512m
+    restart: always
+    env_file:
+      - wis2-gc.env
+    command: server --console-address ":9001" /data
+    # in a production-setup minio needs to be
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+    networks:
+      - wis2-gc-net
+
+  mosquitto:
+    container_name: mosquitto
+    restart: always
+    build:
+      context: ./mosquitto
+    env_file:
+      - wis2-gc.env
+    networks:
+      - wis2-gc-net
+
+  wis2-gc-management:
+    container_name: wis2-gc-management
+    build:
+      context: ..
+    env_file:
+      - wis2-gc.env
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: always
+    command: ["pywis-pubsub", "subscribe", "--config", "/app/docker/pywis-pubsub.yml", "--download", "--verbosity", "DEBUG"]
+    networks:
+      - wis2-gc-net
+
+volumes:
+  minio-data:
+
+networks:
+  wis2-gc-net:

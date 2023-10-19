@@ -1,0 +1,21 @@
+broker: ${WIS2_GC_GB_URL}
+
+subscribe_topics:
+    - 'origin/a/wis2/#'
+
+qos: 0
+client_id: wis2-gc-testing
+clean_session: false
+
+verify_data: false
+
+#validate_message: true
+
+hook: wis2_gc.hook.DataMetadataHook
+
+# storage: s3
+storage:
+    type: S3
+    options:
+        url: ${WIS2_GC_STORAGE_URL}
+        bucket: ${WIS2_GC_STORAGE_PATH}
