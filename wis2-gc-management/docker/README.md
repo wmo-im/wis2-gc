@@ -5,6 +5,7 @@
 This Docker setup uses Docker and Docker Compose to manage the following services:
 
 - **MinIO**: GC storage backend
+- **mosquitto**: Local broker that is subscribed to by the Global Broker
 - **wis2-gc-management**: management service to cache data and metadata published from a WIS2 Global Broker instance
   - the default Global Broker connection is to Météo-France.  This can be modified in `pywis-pubsub.yml` to point to an alternate Global Broker
 

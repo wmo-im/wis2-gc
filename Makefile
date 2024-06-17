@@ -19,7 +19,7 @@
 #
 ###############################################################################
 
-DOCKER_COMPOSE_ARGS=--file docker/docker-compose.yml --file docker/docker-compose.override.yml --project-name wis2-gc
+DOCKER_COMPOSE_ARGS=--file docker-compose.yml --file docker-compose.override.yml --project-name wis2-gc
 
 build:
 	docker compose $(DOCKER_COMPOSE_ARGS) build

@@ -20,21 +20,30 @@
 ###############################################################################
 
 from datetime import datetime, timedelta
+import json
 import logging
+import uuid
 
 import click
 
 from pywis_pubsub import cli_options
+from pywis_pubsub.message import get_link
+from pywis_pubsub.mqtt import MQTTPubSubClient
 from pywis_pubsub.util import yaml_load
 from pywis_pubsub.storage import STORAGES
 
-from wis2_gc.env import PYWIS_PUBSUB_CONFIG, STORAGE_DATA_RETENTION_DAYS
+from wis2_gc.env import (BROKER_URL, PYWIS_PUBSUB_CONFIG,
+                         STORAGE_DATA_RETENTION_DAYS, URL)
 
 LOGGER = logging.getLogger(__name__)
 
 
 class Cacher:
     def __init__(self):
+        """
+        Initializer
+        """
+
         with open(PYWIS_PUBSUB_CONFIG) as fh:
             pywis_pubsub_config = yaml_load(fh)
 
@@ -62,6 +71,36 @@ class Cacher:
                 self.storage_object.delete(obj)
 
         return
+
+    def publish(self, topic: str, msg_dict: dict, client: str = None) -> bool:
+        """publish message of cached data"""
+
+        m = client or MQTTPubSubClient(BROKER_URL)
+
+        LOGGER.debug('Adjusting message id')
+        msg_dict['id'] = str(uuid.uuid4())
+
+        LOGGER.debug('Adjusting link from origin to cache')
+        cache_link = origin_link = get_link(msg_dict['links'])
+
+        LOGGER.debug('Adjusting topic from origin to cache')
+        cache_topic = topic.replace('origin/', 'cache/', 1)
+
+        cache_link['href'] = f"{URL}/{msg_dict['properties']['data_id']}"
+
+        for link2 in msg_dict['links']:
+            if link2['rel'] == origin_link['rel']:
+                msg_dict['links'].remove(origin_link)
+
+        msg_dict['links'].append(cache_link)
+
+        LOGGER.debug('Updating pubtime')
+        datetime_ = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        msg_dict['properties']['pubtime'] = datetime_
+
+        LOGGER.debug(f'Publishing message to {cache_topic}')
+        m.pub(cache_topic, json.dumps(msg_dict))
+        m.close()
 
 
 @click.command()

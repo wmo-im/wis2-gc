@@ -1,11 +1,16 @@
 broker: ${WIS2_GC_GB_URL}
 
 subscribe_topics:
-    - 'origin/a/wis2/#'
+    - 'origin/a/wis2/+/data/core/#'
+    - 'origin/a/wis2/+/metadata/#'
 
-verify_data: true
+qos: 0
+client_id: wis2-gc-testing
+clean_session: false
 
-validate_message: true
+verify_data: false
+
+#validate_message: true
 
 hook: wis2_gc.hook.DataMetadataHook
 

@@ -20,8 +20,8 @@
 ###############################################################################
 
 services:
-  minio:
-    container_name: minio
+  wis2-gc-storage:
+    container_name: wis2-gc-storage
     image: minio/minio:latest
     mem_limit: 512m
     memswap_limit: 512m
@@ -29,9 +29,9 @@ services:
     env_file:
       - wis2-gc.env
     command: server --console-address ":9001" /data
-    # in a production-setup minio needs to be
+    # in a production-setup MinIO needs to be
     volumes:
-      - minio-data:/data
+      - wis2-gc-storage-data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 5s
@@ -40,11 +40,11 @@ services:
     networks:
       - wis2-gc-net
 
-  mosquitto:
-    container_name: mosquitto
+  wis2-gc-broker:
+    container_name: wis2-gc-broker
     restart: always
     build:
-      context: ./mosquitto
+      context: ./wis2-gc-broker
     env_file:
       - wis2-gc.env
     networks:
@@ -53,11 +53,11 @@ services:
   wis2-gc-management:
     container_name: wis2-gc-management
     build:
-      context: ..
+      context: ./wis2-gc-management
     env_file:
       - wis2-gc.env
     depends_on:
-      minio:
+      wis2-gc-storage:
         condition: service_healthy
     restart: always
     command: ["pywis-pubsub", "subscribe", "--config", "/app/docker/pywis-pubsub.yml", "--download", "--verbosity", "DEBUG"]
@@ -65,7 +65,7 @@ services:
       - wis2-gc-net
 
 volumes:
-  minio-data:
+  wis2-gc-storage-data:
 
 networks:
   wis2-gc-net:

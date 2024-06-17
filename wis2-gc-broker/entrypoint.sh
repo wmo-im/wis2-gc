@@ -1,7 +1,5 @@
 #!/bin/sh
 
-CREDENTIALS=`echo $WIS2NODE_BROKER | awk -F/ '{print $3}' | awk -F@ '{print $1}' | sed 's/:/ /'`
-
 USERNAME=`echo $WIS2_GC_BROKER_URL |awk -F/ '{print $3}' | awk -F@ '{print $1}' | awk -F: '{print $1}'`
 PASSWORD=`echo $WIS2_GC_BROKER_URL |awk -F/ '{print $3}' | awk -F@ '{print $1}' | awk -F: '{print $2}'`
 
