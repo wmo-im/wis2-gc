@@ -9,8 +9,8 @@ wis2-gc is a Reference Implementation of a WIS2 Global Cache.
 ## Workflow
 
 - connects to a WIS2 Global Broker, subscribed to the following:
-  - 'origin/a/wis2/+/data/core/#'
-  - 'origin/a/wis2/+/metadata/#'
+  - `origin/a/wis2/+/data/core/#`
+  - `origin/a/wis2/+/metadata/#`
 - on all notifications:
   - download and store data to object storage
   - publish notification of cached object
