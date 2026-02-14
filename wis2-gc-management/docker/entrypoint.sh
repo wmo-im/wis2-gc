@@ -25,10 +25,13 @@
 echo "START /entrypoint.sh"
 
 echo "Caching WCMP2 schemas"
-pywis-pubsub schema sync
+/venv/bin/pywis-pubsub schema sync
 
 echo "Setting up storage bucket"
-wis2-gc setup --yes
+/venv/bin/wis2-gc setup --yes
+
+echo "Starting cron"
+/usr/local/bin/supercronic /app/docker/wis2-gc.cron &
 
 echo "END /entrypoint.sh"
 exec "$@"

@@ -19,30 +19,43 @@
 #
 ###############################################################################
 
-FROM ubuntu:focal
+FROM ubuntu:noble-20260113
 
 LABEL maintainer="tomkralidis@gmail.com"
 
 ENV TZ="Etc/UTC" \
     DEBIAN_FRONTEND="noninteractive" \
-    DEBIAN_PACKAGES="bash git python3-pip python3-setuptools"
+    DEBIAN_PACKAGES="bash curl git python3-pip python3-setuptools python3-venv" \
+    HOME=/app \
+    WIS2_GC_ENABLE_CRON=true
 
 # copy the app
 COPY . /app
 
+
 RUN apt-get update -y && \
     # install dependencies
     apt-get install -y ${DEBIAN_PACKAGES} && \
-    pip3 install --no-cache-dir -r /app/requirements.txt && \
+    python3 -m venv /venv && \
+    /venv/bin/pip3 install --no-cache-dir -r /app/requirements.txt && \
     # install wis2-gc
     cd /app && \
-    pip3 install -e . && \
+    /venv/bin/pip3 install -e . && \
     chmod +x /app/docker/entrypoint.sh && \
     # cleanup
     apt autoremove -y && \
     apt-get -q clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY ./docker/wis2-gc.cron /etc/cron.d/wis2-gc.cron
+# Install Supercronic for job management
+RUN curl -fsSLO "https://github.com/aptible/supercronic/releases/download/v0.2.43/supercronic-linux-amd64" && \
+    chmod +x supercronic-linux-amd64 && \
+    mv supercronic-linux-amd64 /usr/local/bin/supercronic
+
+RUN useradd -u 1001 -g 0 wis2-gc && \
+    chgrp -R 0 /app && \
+    chmod -R g=u /app
+
+USER 1001
 
 ENTRYPOINT [ "/app/docker/entrypoint.sh" ]

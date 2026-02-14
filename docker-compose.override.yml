@@ -28,3 +28,4 @@ services:
   wis2-gc-broker:
     ports:
       - 1883:1883
+      - 1884:1884
