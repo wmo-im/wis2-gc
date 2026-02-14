@@ -86,13 +86,17 @@ class Cacher:
         LOGGER.debug('Adjusting topic from origin to cache')
         cache_topic = topic.replace('origin/', 'cache/', 1)
 
-        cache_link['href'] = f"{URL}/{msg_dict['properties']['data_id']}"
+        if msg_dict['properties'].get('cache', True):
+            LOGGER.debug('Updating cache link')
+            cache_link['href'] = f"{URL}/{msg_dict['properties']['data_id']}"
 
-        for link2 in msg_dict['links']:
-            if link2['rel'] == origin_link['rel']:
-                msg_dict['links'].remove(origin_link)
+            for link2 in msg_dict['links']:
+                if link2['rel'] == origin_link['rel']:
+                    msg_dict['links'].remove(origin_link)
 
-        msg_dict['links'].append(cache_link)
+            msg_dict['links'].append(cache_link)
+        else:
+            LOGGER.debug('Not updating cache link')
 
         LOGGER.debug('Updating pubtime')
         datetime_ = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
