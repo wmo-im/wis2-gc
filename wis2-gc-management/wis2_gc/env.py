@@ -22,8 +22,12 @@
 import os
 
 URL = os.environ.get('WIS2_GC_URL')
-STORAGE_DATA_RETENTION_DAYS = os.environ.get(
-    'WIS2_GC_STORAGE_DATA_RETENTION_DAYS')
+CACHE_URL = os.environ.get('WIS2_GC_CACHE_URL')
+CACHE_RETENTION_SECONDS = int(os.environ.get(
+    'WIS2_GC_CACHE_RETENTION_SECONDS', 86400))
+
+STORAGE_DATA_RETENTION_DAYS = int(os.environ.get(
+    'WIS2_GC_STORAGE_DATA_RETENTION_DAYS', 1))
 
 STORAGE_URL = os.environ.get('WIS2_GC_STORAGE_URL')
 STORAGE_PATH = os.environ.get('WIS2_GC_STORAGE_PATH')

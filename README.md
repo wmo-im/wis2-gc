@@ -12,6 +12,8 @@ wis2-gc is a Reference Implementation of a WIS2 Global Cache.
   - `origin/a/wis2/+/data/core/#`
   - `origin/a/wis2/+/metadata/#`
 - on all notifications:
+  - check for message duplication
+  - check for data duplication
   - download and store data to object storage
   - publish notification of cached object
 
@@ -74,6 +76,7 @@ The Docker setup uses Docker and Docker Compose to manage the following services
 - **wis2-gc-management**: management service to ingest and process notification messages, download data and publish messages against `cache/a/wis2/...`
   - the default Global Broker connection is to NOAA.  This can be modified in `wis2-gc.env` to point to a different Global Broker
 - **wis2-gc-storage**: storage and access capability
+- **wis2-gc-cache**: message cache (default Redis)
 
 See [`wis2-gc.env`](wis2-gc.env) for default environment variable settings.
 

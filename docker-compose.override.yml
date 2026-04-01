@@ -29,3 +29,7 @@ services:
     ports:
       - 1883:1883
       - 1884:1884
+
+  wis2-gc-cache:
+    ports:
+      - 6379:6379
